@@ -32,7 +32,6 @@ public class GameManager : MonoBehaviour
         StartCoroutine(GameLoop());
     }
 
-
     private void SpawnAllTanks()
     {
         for (int i = 0; i < m_Tanks.Length; i++)
@@ -42,6 +41,11 @@ public class GameManager : MonoBehaviour
             m_Tanks[i].m_PlayerNumber = i + 1;
             m_Tanks[i].Setup();
         }
+        //SPAGHETTI CODE (Ineed to create an ai manager that manages the tanks)
+        m_Tanks[1].m_Instance.GetComponent<TankMovement>().othertank = m_Tanks[0].m_Instance;
+        m_Tanks[1].m_Instance.name = "1";
+        m_Tanks[0].m_Instance.GetComponent<TankMovement>().othertank = m_Tanks[1].m_Instance;
+        m_Tanks[0].m_Instance.name = "2";
     }
 
 

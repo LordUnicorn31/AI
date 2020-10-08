@@ -15,7 +15,10 @@ public class TankMovement : MonoBehaviour
     private Rigidbody m_Rigidbody;         
     private float m_MovementInputValue;    
     private float m_TurnInputValue;        
-    private float m_OriginalPitch;         
+    private float m_OriginalPitch;
+
+    //SPAGETTI CODE
+    public GameObject othertank;
 
 
     private void Awake()
@@ -86,8 +89,19 @@ public class TankMovement : MonoBehaviour
     private void FixedUpdate()
     {
         // Move and turn the tank.
-		Move();
-		Turn();
+        //Move();
+        //Turn();
+        //SPAGHETTI CODE
+        if (othertank.name == "1")
+        {
+            //flee();
+            Move();
+            Turn();
+        }
+        else if (othertank.name == "2")
+        {
+            seek();
+        }
     }
 
 
@@ -108,5 +122,28 @@ public class TankMovement : MonoBehaviour
 		Quaternion turnRotation = Quaternion.Euler(0f, turn, 0f);
 
 		m_Rigidbody.MoveRotation(m_Rigidbody.rotation * turnRotation);
+    }
+
+    //The seek and flee are faster than the move an turn
+    void seek()
+    {
+        Vector3 direction = othertank.transform.position - transform.position;
+        direction.y = 0f;    // (x, z): position in the floor
+        Vector3 movement = direction.normalized * m_Speed * Time.deltaTime;
+        m_Rigidbody.MovePosition(m_Rigidbody.position + movement);
+        float angle = Mathf.Rad2Deg * Mathf.Atan2(movement.x, movement.z) * Time.deltaTime;
+        Quaternion trotation = Quaternion.AngleAxis(angle, Vector3.up);  // up = y
+        m_Rigidbody.MoveRotation(m_Rigidbody.rotation * trotation);
+    }
+
+    void flee()
+    {
+        Vector3 direction = transform.position - othertank.transform.position;
+        direction.y = 0f;    // (x, z): position in the floor
+        Vector3 movement = direction.normalized * m_Speed * Time.deltaTime;
+        m_Rigidbody.MovePosition(m_Rigidbody.position + movement);
+        float angle = Mathf.Rad2Deg * Mathf.Atan2(movement.x, movement.z) * Time.deltaTime;
+        Quaternion trotation = Quaternion.AngleAxis(angle, Vector3.up);  // up = y
+        m_Rigidbody.MoveRotation(m_Rigidbody.rotation * trotation);
     }
 }
