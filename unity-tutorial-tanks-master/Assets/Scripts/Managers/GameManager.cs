@@ -2,6 +2,8 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System;
+using System.Runtime.InteropServices.ComTypes;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,8 +12,9 @@ public class GameManager : MonoBehaviour
     public float m_EndDelay = 2f;           
     public CameraControl m_CameraControl;   
     public Text m_MessageText;              
-    public GameObject m_TankPrefab;         
-    public TankManager[] m_Tanks;           
+    public GameObject[] m_TankPrefabs;         
+    public TankManager[] m_Tanks;
+    public Transform[] patrolPoints;
 
 
     private int m_RoundNumber;              
@@ -36,16 +39,20 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < m_Tanks.Length; i++)
         {
-            m_Tanks[i].m_Instance =
-                Instantiate(m_TankPrefab, m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
+            if (m_Tanks[i].type == Type.patrol)
+            {
+                m_Tanks[i].m_Instance = Instantiate(m_TankPrefabs[0], m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
+                m_Tanks[i].m_Instance.GetComponent<Patrol>().Points = patrolPoints;
+            }
+            else if (m_Tanks[i].type == Type.wander)
+            {
+                m_Tanks[i].m_Instance = Instantiate(m_TankPrefabs[1], m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
+            }
             m_Tanks[i].m_PlayerNumber = i + 1;
             m_Tanks[i].Setup();
         }
-        //SPAGHETTI CODE (Ineed to create an ai manager that manages the tanks)
-        m_Tanks[1].m_Instance.GetComponent<TankMovement>().othertank = m_Tanks[0].m_Instance;
-        m_Tanks[1].m_Instance.name = "1";
-        m_Tanks[0].m_Instance.GetComponent<TankMovement>().othertank = m_Tanks[1].m_Instance;
-        m_Tanks[0].m_Instance.name = "2";
+        m_Tanks[0].m_Instance.GetComponent<TankShooting>().OtherTank = m_Tanks[1].m_Instance.GetComponent<Transform>();
+        m_Tanks[1].m_Instance.GetComponent<TankShooting>().OtherTank = m_Tanks[0].m_Instance.GetComponent<Transform>();
     }
 
 

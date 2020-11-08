@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class TankShooting : MonoBehaviour
 {
@@ -14,6 +15,10 @@ public class TankShooting : MonoBehaviour
     public float m_MaxLaunchForce = 30f; 
     public float m_MaxChargeTime = 0.75f;
 
+    public Transform OtherTank;
+    public float initVelocity = 30f;
+    public float gravity = -1f;
+    public float angle;
 
     private string m_FireButton;         
     private float m_CurrentLaunchForce;  
@@ -75,11 +80,30 @@ public class TankShooting : MonoBehaviour
 
 		Rigidbody shellInstance = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
 
-		shellInstance.velocity = m_CurrentLaunchForce * m_FireTransform.forward;
+        //Angle();
+        //m_FireTransform.Rotate(angle, 0.0f, 0.0f);
+
+        shellInstance.velocity = m_CurrentLaunchForce * m_FireTransform.forward;
 
 		m_ShootingAudio.clip = m_FireClip;
 		m_ShootingAudio.Play();
 
 		m_CurrentLaunchForce = m_MinLaunchForce;
     }
+
+    private void Angle()
+    {
+        initVelocity = 30f;
+        // Calculate the distances from the projedctile to the objective tank
+        float distanceX = Vector3.Distance(m_FireTransform.position, OtherTank.position);
+        float distanceY = OtherTank.position.y;
+
+        // Calculate the angle considering objective x and y.
+        float squareVel = initVelocity * initVelocity;
+        float quadVel = initVelocity * initVelocity * initVelocity * initVelocity;
+        float squareX = distanceX * distanceX;
+        float tanAngle = (squareVel + (float)Math.Sqrt((double)(quadVel - gravity * (gravity * squareX + 2 * distanceY * squareVel)))) / (gravity * distanceX);
+        angle = (float)Math.Atan(tanAngle);
+    }
+
 }
